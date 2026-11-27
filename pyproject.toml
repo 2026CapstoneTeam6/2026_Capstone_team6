@@ -1,0 +1,21 @@
+[project]
+name = "capstone-team6"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "박민정", email = "mg7694@naver.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "openai>=3.60.0",
+    "python-dotenv>=1.2.4",
+    "pyyaml>=6.0.4",
+]
+
+[project.scripts]
+capstone-team6 = "capstone_team6:main"
+
+[build-system]
+requires = ["uv_build>=0.13.10,<0.14.0"]
+build-backend = "uv_build"
