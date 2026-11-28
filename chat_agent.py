@@ -20,10 +20,10 @@ def get_order(order_id: str) -> dict:
 
 
 def search_policy(question: str) -> dict:
-    documents = rag.search_policy(question)  # 03 의 검색을 그대로 사용
+    documents = [d for d in rag.search_policy(question) if rag.is_approved_policy(d)]  # 03 의 검색을 그대로 사용
     for d in documents:
         print(f"[검색] {d['meta']['doc_id']} · {d['meta']['status']} · {d['meta']['title']}")
-    return {"documents": [d["text"] for d in documents]}  # 03 처럼 본문만 모델에게 전달
+    return {"documents": [{"doc_id": d["meta"]["doc_id"], "text": d["text"]} for d in documents]}  # 03 처럼 본문만 모델에게 전달
 
 
 TOOLS = [

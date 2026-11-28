@@ -2,6 +2,7 @@
 
 import pathlib
 import re
+from datetime import date
 import yaml
 
 from llm_client import client, MODEL
@@ -29,6 +30,20 @@ DOCS = [
 ]
 
 
+def is_approved_policy(doc, today=None):
+    meta = doc["meta"]
+    today = today or date.today()
+    if meta.get("status") != "approved" or meta.get("visibility") == "internal":
+        return False
+    try:
+        start, end = meta.get("effective_from"), meta.get("effective_to")
+        return (start is None or date.fromisoformat(str(start)) <= today) and (
+            end is None or today <= date.fromisoformat(str(end))
+        )
+    except (TypeError, ValueError):
+        return False
+
+
 def bigrams(s):
     s = re.sub(r"\s+", "", s)
     return {s[i:i + 2] for i in range(len(s) - 1)}
@@ -38,7 +53,7 @@ def search_policy(question, k=3):
     """가장 단순한 검색 — 질문과 글자 2개 단위로 많이 겹치는 문서 k개"""
     q = bigrams(question)
     ranked = sorted(
-        DOCS,
+        (d for d in DOCS if is_approved_policy(d)),
         key=lambda d: len(q & bigrams(d["text"])),
         reverse=True,
     )
