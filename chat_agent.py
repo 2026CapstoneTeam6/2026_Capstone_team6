@@ -16,7 +16,16 @@ def get_order(order_id: str) -> dict:
         return {"error": "NOT_FOUND"}
     if order["customer_id"] != SESSION_CUSTOMER:  # 소유자 검증은 코드에서
         return {"error": "FORBIDDEN"}
-    return {"order_id": order_id, "status": order["status"], "items": order["items"]}
+    claim = order.get("claim") or {}
+    return {
+        "order_id": order_id,
+        "status": order["status"],
+        "items": order["items"],
+        "paid_amount": order["amounts"]["paid_amount"],
+        "points_used": order["amounts"]["points_used"],
+        "refund_status": claim.get("status"),
+        "refund": claim.get("refund"),
+    }
 
 
 def search_policy(question: str) -> dict:
