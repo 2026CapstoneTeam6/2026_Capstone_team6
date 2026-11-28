@@ -16,14 +16,23 @@ def get_order(order_id: str) -> dict:
         return {"error": "NOT_FOUND"}
     if order["customer_id"] != SESSION_CUSTOMER:  # 소유자 검증은 코드에서
         return {"error": "FORBIDDEN"}
-    return {"order_id": order_id, "status": order["status"], "items": order["items"]}
+    claim = order.get("claim") or {}
+    return {
+        "order_id": order_id,
+        "status": order["status"],
+        "items": order["items"],
+        "paid_amount": order["amounts"]["paid_amount"],
+        "points_used": order["amounts"]["points_used"],
+        "refund_status": claim.get("status"),
+        "refund": claim.get("refund"),
+    }
 
 
 def search_policy(question: str) -> dict:
-    documents = [d for d in rag.search_policy(question) if rag.is_approved_policy(d)]  # 03 의 검색을 그대로 사용
+    documents = rag.search_policy(question)  # 03 의 검색을 그대로 사용
     for d in documents:
         print(f"[검색] {d['meta']['doc_id']} · {d['meta']['status']} · {d['meta']['title']}")
-    return {"documents": [{"doc_id": d["meta"]["doc_id"], "text": d["text"]} for d in documents]}  # 03 처럼 본문만 모델에게 전달
+    return {"documents": [d["text"] for d in documents]}  # 03 처럼 본문만 모델에게 전달
 
 
 TOOLS = [
