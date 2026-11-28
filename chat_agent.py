@@ -17,14 +17,15 @@ def get_order(order_id: str) -> dict:
     if order["customer_id"] != SESSION_CUSTOMER:  # 소유자 검증은 코드에서
         return {"error": "FORBIDDEN"}
     claim = order.get("claim") or {}
+    amounts = order.get("amounts") or {}
     return {
         "order_id": order_id,
         "status": order["status"],
         "items": order["items"],
-        "paid_amount": order["amounts"]["paid_amount"],
-        "points_used": order["amounts"]["points_used"],
-        "refund_status": claim.get("status"),
-        "refund": claim.get("refund"),
+        "paid_amount": amounts.get("paid_amount"),  # 실제 결제 금액
+        "points_used": amounts.get("points_used"),  # 사용한 포인트
+        "refund_status": claim.get("status"),       # 환불·취소 요청의 처리 상태
+        "refund": claim.get("refund"),              # 환불 금액
     }
 
 
@@ -69,13 +70,17 @@ messages = [{
                "주문 정보는 반드시 get_order 로 조회하고, 정책 질문은 반드시 search_policy 로 검색해.",
 }]
 
-print("질문을 입력하세요. 끝내려면 exit")
+print("질문을 입력하세요. 대화 기록을 지우려면 reset, 끝내려면 exit")
 
 while True:
     question = input("\n나: ").strip()
     if question.lower() == "exit":
         break
     if not question:
+        continue
+    if question.lower() == "reset":
+        del messages[1:]  # 시스템 지시만 남기고 대화 기록 삭제
+        print("대화 기록을 지웠습니다.")
         continue
     messages.append({"role": "user", "content": question})
 
