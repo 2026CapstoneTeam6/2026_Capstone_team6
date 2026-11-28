@@ -16,23 +16,14 @@ def get_order(order_id: str) -> dict:
         return {"error": "NOT_FOUND"}
     if order["customer_id"] != SESSION_CUSTOMER:  # 소유자 검증은 코드에서
         return {"error": "FORBIDDEN"}
-    claim = order.get("claim") or {}
-    return {
-        "order_id": order_id,
-        "status": order["status"],
-        "items": order["items"],
-        "paid_amount": order["amounts"]["paid_amount"],
-        "points_used": order["amounts"]["points_used"],
-        "refund_status": claim.get("status"),
-        "refund": claim.get("refund"),
-    }
+    return {"order_id": order_id, "status": order["status"], "items": order["items"]}
 
 
 def search_policy(question: str) -> dict:
-    documents = rag.search_policy(question)  # 03 의 검색을 그대로 사용
+    documents = [d for d in rag.search_policy(question) if rag.is_approved_policy(d)]  # 03 의 검색을 그대로 사용
     for d in documents:
         print(f"[검색] {d['meta']['doc_id']} · {d['meta']['status']} · {d['meta']['title']}")
-    return {"documents": [d["text"] for d in documents]}  # 03 처럼 본문만 모델에게 전달
+    return {"documents": [{"doc_id": d["meta"]["doc_id"], "text": d["text"]} for d in documents]}  # 03 처럼 본문만 모델에게 전달
 
 
 TOOLS = [
@@ -69,17 +60,13 @@ messages = [{
                "주문 정보는 반드시 get_order 로 조회하고, 정책 질문은 반드시 search_policy 로 검색해.",
 }]
 
-print("질문을 입력하세요. 대화 기록을 지우려면 reset, 끝내려면 exit")
+print("질문을 입력하세요. 끝내려면 exit")
 
 while True:
     question = input("\n나: ").strip()
     if question.lower() == "exit":
         break
     if not question:
-        continue
-    if question.lower() == "reset":
-        del messages[1:]  # 시스템 지시만 남기고 대화 기록 삭제
-        print("대화 기록을 지웠습니다.")
         continue
     messages.append({"role": "user", "content": question})
 
