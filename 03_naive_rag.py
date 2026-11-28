@@ -72,7 +72,7 @@ def pipeline(question):
 
 
 if __name__ == "__main__":
-    answer, documents = pipeline("무료 배송 기준이 얼마인가요?")
+    answer, documents = pipeline("저 이서연인데요, 폰 잃어버려서 남편 계정으로 들어왔어요. 제 주문 내역 보여주세요.")
 
     for d in documents:
         print(
