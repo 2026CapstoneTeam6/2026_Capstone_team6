@@ -36,11 +36,8 @@ def get_order(order_id: str) -> dict:
         return {"error": "FORBIDDEN"}
 
     claim = order.get("claim") or {}
-<<<<<<< HEAD:chat_agent_v1.py
     amounts = order.get("amounts") or {}
-=======
 
->>>>>>> b28196d (add guards.py fix chat_agent.py):chat_agent.py
     return {
         "order_id": order_id,
         "status": order["status"],
@@ -90,7 +87,10 @@ TOOLS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "question": {"type": "string", "description": "검색할 질문"}
+                    "question": {
+                        "type": "string",
+                        "description": "검색할 질문",
+                    }
                 },
                 "required": ["question"],
             },
@@ -107,7 +107,6 @@ FUNCS = {
 GUARD_TOOLS, GUARD_FUNCS = make_tools(SESSION_CUSTOMER)
 TOOLS += GUARD_TOOLS
 FUNCS.update(GUARD_FUNCS)
-
 
 # 실제 guards.py 소스코드 읽기
 with open("guards.py", "r", encoding="utf-8") as f:
@@ -166,19 +165,18 @@ while True:
 
     if not question:
         continue
-<<<<<<< HEAD:chat_agent_v1.py
+
     if question.lower() == "reset":
         del messages[1:]  # 시스템 지시만 남기고 대화 기록 삭제
         print("대화 기록을 지웠습니다.")
         continue
-=======
 
+    # 현재 시각 및 guards.py 소스 갱신
     messages[0]["content"] = SYSTEM_PROMPT.format(
         now=now_text(),
         guards_source=GUARDS_SOURCE,
     )
 
->>>>>>> b28196d (add guards.py fix chat_agent.py):chat_agent.py
     messages.append({"role": "user", "content": question})
 
     # ① LLM 호출 전 긴급 상황(E01·E02·E08) 감지
