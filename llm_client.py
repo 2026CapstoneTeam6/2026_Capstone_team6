@@ -8,4 +8,6 @@ MODEL = os.environ["LLM_MODEL"]
 client = OpenAI(
 base_url=os.getenv("LLM_BASE_URL", "http://localhost:8000/v1"),
 api_key=os.getenv("LLM_API_KEY", "none"),
+timeout=90.0,
+max_retries=0,
 )

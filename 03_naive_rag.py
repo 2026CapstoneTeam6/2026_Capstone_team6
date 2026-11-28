@@ -31,6 +31,7 @@ DOCS = [
 
 
 def is_approved_policy(doc, today=None):
+    """Only active, approved, public policy is usable as customer evidence."""
     meta = doc["meta"]
     today = today or date.today()
     if meta.get("status") != "approved" or meta.get("visibility") == "internal":
